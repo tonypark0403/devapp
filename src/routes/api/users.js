@@ -5,6 +5,10 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import passport from 'passport';
 
+// Load Input Validation
+import validateRegisterInput from '../../validation/register';
+import validateLoginInput from '../../validation/login';
+
 // Load User model
 import User from '../../models/User';
 import keys from '../../config/keys';
@@ -21,12 +25,17 @@ router.get(routes.USERS_URLs.TEST, (req, res) => res.json({
 // @desc    Register user
 // @access  Public
 router.post(routes.USERS_URLs.REGISTER, (req, res) => {
+    const { errors, isValid } = validateRegisterInput(req.body);
+
+    // Check Validation
+    if(!isValid) {
+        return res.status(400).json(errors);
+    }
     User.findOne({ email: req.body.email })
         .then(user => {
             if(user) {
-                return res.status(400).json({
-                    email: 'Email already exists'
-                })
+                errors.email = 'Email already exists';
+                return res.status(400).json(errors);
             } else {
                 const { name, email, password} = req.body;
                 const avatar = gravatar.url(req.body.email, {
@@ -57,7 +66,14 @@ router.post(routes.USERS_URLs.REGISTER, (req, res) => {
 // @route   POST api/users/login
 // @desc    Login user / Returning JWT Token
 // @access  Public
-router.post('/login', (req, res) => {
+router.post(routes.USERS_URLs.LOGIN, (req, res) => {
+    const { errors, isValid } = validateLoginInput(req.body);
+
+    // Check Validation
+    if(!isValid) {
+        return res.status(400).json(errors);
+    }
+
     const { email, password } = req.body;
 
     // Find user by email
@@ -65,7 +81,10 @@ router.post('/login', (req, res) => {
         email
     }).then(user => {
         // Check for user
-        if(!user) return res.status(404).json({email: 'User not found'});
+        if(!user) {
+            errors.email = 'User not found';
+            return res.status(404).json(errors);
+        }
         // Check Password
         bcrypt.compare(password, user.password)
             .then(isMatch => {
@@ -88,9 +107,8 @@ router.post('/login', (req, res) => {
                             })
                         }); // one hour(60 * 60)
                 } else {
-                    return res.status(404).json({
-                        password: 'Password incorrect'
-                    });
+                    errors.password = 'Password incorrect';
+                    return res.status(404).json(errors);
                 }
             });
     });
