@@ -3,6 +3,7 @@ import routes from "../";
 import gravatar from 'gravatar';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import passport from 'passport';
 
 // Load User model
 import User from '../../models/User';
@@ -59,28 +60,23 @@ router.post(routes.USERS_URLs.REGISTER, (req, res) => {
 router.post('/login', (req, res) => {
     const { email, password } = req.body;
 
-    //Find user by email
+    // Find user by email
     User.findOne({
         email
     }).then(user => {
-        //Check for user
+        // Check for user
         if(!user) return res.status(404).json({email: 'User not found'});
-        //Check Password
+        // Check Password
         bcrypt.compare(password, user.password)
             .then(isMatch => {
                 if(isMatch) {
-                    // res.json({
-                    //     msg: 'Success'
-                    // });
-                    // User Matched
-
                     // Create JWT Payload
                     const payload = {
                         id: user.id,
                         name: user.name,
                         avatar: user.avatar
                     }
-                    //Sign Token
+                    // Sign Token
                     jwt.sign(
                         payload, 
                         keys.secretOrKey,
@@ -90,7 +86,7 @@ router.post('/login', (req, res) => {
                                 success: true,
                                 token: 'Bearer ' + token
                             })
-                        }); //one hour(60 * 60)
+                        }); // one hour(60 * 60)
                 } else {
                     return res.status(404).json({
                         password: 'Password incorrect'
@@ -98,6 +94,18 @@ router.post('/login', (req, res) => {
                 }
             });
     });
+});
+
+// @route   GET api/users/current
+// @desc    Return current user
+// @access  Private
+router.get(routes.USERS_URLs.CURRENT, passport.authenticate('jwt', { session: false }), (req, res) => {
+    const { id, name, email } = req.user;
+    res.json({
+        id,
+        name,
+        email
+    })
 });
 
 export default router;

@@ -5,7 +5,8 @@ const HOME = "/";
 const USERS = "/api/users";
 const USERS_URLs = {
     TEST: "/test",
-    REGISTER: "/register"
+    REGISTER: "/register",
+    CURRENT: "/current"
 }
 const PROFILE = "/api/profile";
 const POSTS = "/api/posts";
