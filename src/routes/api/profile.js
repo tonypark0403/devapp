@@ -5,7 +5,7 @@ const router = express.Router();
 // @route   GET api/profile/test
 // @desc    Tests post route
 // @access  Public
-router.get(routes.TEST, (req, res) => res.json({
+router.get(routes.USERS_URLs.TEST, (req, res) => res.json({
     msg: "Profile Works"
 }));
 

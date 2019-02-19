@@ -1,6 +1,7 @@
 import express from 'express';
 import morgan from 'morgan';
 import mongoose from 'mongoose';
+import bodyParser from 'body-parser';
 
 import dbKey from './config/keys';
 
@@ -12,6 +13,12 @@ import profile from './routes/api/profile';
 
 const app = express();
 
+//Middlewares
+app.use(morgan("dev"));
+// Body parser middelware
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+
 //DB Config
 const db = dbKey.mongoURI;
 
@@ -20,9 +27,6 @@ mongoose
     .connect(db)
     .then(() => console.log('MongoDB Connected'))
     .catch(err => console.log(err));
-
-//Middlewares
-app.use(morgan("dev"));
 
 //Middleware for routing
 app.use(routes.HOME, homeRouter);

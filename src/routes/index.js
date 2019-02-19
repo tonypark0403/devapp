@@ -1,16 +1,19 @@
 // Global
 const HOME = "/";
-const TEST = "/test";
 
 // API
 const USERS = "/api/users";
+const USERS_URLs = {
+    TEST: "/test",
+    REGISTER: "/register"
+}
 const PROFILE = "/api/profile";
 const POSTS = "/api/posts";
 
 const routes = {
   HOME,
-  TEST,
   USERS,
+  USERS_URLs,
   PROFILE,
   POSTS
 };
